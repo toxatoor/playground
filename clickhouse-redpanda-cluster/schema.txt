@@ -21,3 +21,6 @@ CREATE TABLE default.`all` as d ENGINE = Distributed('testcluster', 'default', '
 
 # Populate topic
 echo "{\"data\":\"$RANDOM\"}" | rpk topic produce testtopic
+
+# Streaming data to grafana topic
+echo "{\"data1\":$RANDOM,\"data2\":$RANDOM}" | rpk topic produce grafana  # (turns into string '{"data1":3821,"data2":1495}')

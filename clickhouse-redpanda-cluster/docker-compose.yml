@@ -116,3 +116,12 @@ services:
       - ./ch3.xml:/etc/clickhouse-server/config.d/ch3.xml
     depends_on:
       - ch1
+
+  grafana:
+    image: grafana/grafana
+    container_name: grafana
+    ports: 
+      - 3000:3000
+    depends_on:
+      - ch1
+
