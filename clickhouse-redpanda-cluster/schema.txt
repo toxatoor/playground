@@ -1,0 +1,23 @@
+# Create topic: 
+rpk topic create testtopic -p 3 
+
+# Create tables ("on cluster testcluster")
+
+# queue
+CREATE TABLE default.q ( `data` String) ENGINE = Kafka('rp1:9092,rp1:9092,rp3:9092', 'testtopic', 'click', 'JSONEachRow')
+
+# storage
+CREATE TABLE default.d ( `ts` UInt32, `msg` String) ENGINE = MergeTree ORDER BY ts SETTINGS index_granularity = 8192
+
+# mview
+CREATE MATERIALIZED VIEW default.c TO default.d ( `ts` DateTime, `msg` String) AS SELECT now() AS ts, data AS msg FROM default.q
+
+# sharded
+CREATE TABLE default.`all` ( `ts` UInt32, `msg` String) ENGINE = Distributed('testcluster', 'default', 'd')
+
+# sharded, with syntax sugar
+CREATE TABLE default.`all` as d ENGINE = Distributed('testcluster', 'default', 'd')
+
+
+# Populate topic
+echo "{\"data\":\"$RANDOM\"}" | rpk topic produce testtopic

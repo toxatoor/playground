@@ -1,0 +1,118 @@
+version: '3.7'
+services:
+  rp1:
+    image: redpandadata/redpanda
+    container_name: rp1
+    command:
+    - redpanda
+    - start
+    - --smp
+    - '1'
+    - --reserve-memory
+    - 0M
+    - --overprovisioned
+    - --node-id
+    - '0'
+    - --kafka-addr
+    - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+    - --advertise-kafka-addr
+    - PLAINTEXT://rp1:29092,OUTSIDE://rp1:9092
+    - --pandaproxy-addr
+    - PLAINTEXT://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
+    - --advertise-pandaproxy-addr
+    - PLAINTEXT://rp1:28082,OUTSIDE://localhost:8082
+    - --rpc-addr 
+    - 0.0.0.0:33145
+    - --advertise-rpc-addr 
+    - rp1:33145
+
+  rp2:
+    image: redpandadata/redpanda
+    container_name: rp2
+    command:
+    - redpanda
+    - start
+    - --smp
+    - '1'
+    - --reserve-memory
+    - 0M
+    - --overprovisioned
+    - --node-id
+    - '1'
+    - --kafka-addr
+    - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+    - --advertise-kafka-addr
+    - PLAINTEXT://rp2:29092,OUTSIDE://rp2:9092
+    - --pandaproxy-addr
+    - PLAINTEXT://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
+    - --advertise-pandaproxy-addr
+    - PLAINTEXT://rp2:28082,OUTSIDE://localhost:8082
+    - --rpc-addr 
+    - 0.0.0.0:33145
+    - --advertise-rpc-addr 
+    - rp2:33145
+    - --seeds 
+    - rp1:33145
+
+  rp3:
+    image: redpandadata/redpanda
+    container_name: rp3
+    command:
+    - redpanda
+    - start
+    - --smp
+    - '1'
+    - --reserve-memory
+    - 0M
+    - --overprovisioned
+    - --node-id
+    - '2'
+    - --kafka-addr
+    - PLAINTEXT://0.0.0.0:29092,OUTSIDE://0.0.0.0:9092
+    - --advertise-kafka-addr
+    - PLAINTEXT://rp3:29092,OUTSIDE://rp3:9092
+    - --pandaproxy-addr
+    - PLAINTEXT://0.0.0.0:28082,OUTSIDE://0.0.0.0:8082
+    - --advertise-pandaproxy-addr
+    - PLAINTEXT://rp3:28082,OUTSIDE://localhost:8082
+    - --rpc-addr 
+    - 0.0.0.0:33145
+    - --advertise-rpc-addr 
+    - rp3:33145
+    - --seeds 
+    - rp1:33145
+
+  ch1:
+    image: clickhouse/clickhouse-server
+    container_name: ch1
+    volumes: 
+      - ./cluster.xml:/etc/clickhouse-server/config.d/cluster.xml
+      - ./keeper.xml:/etc/clickhouse-server/config.d/keeper.xml
+      - ./profile.xml:/etc/clickhouse-server/users.d/profile.xml
+      - ./ch1.xml:/etc/clickhouse-server/config.d/ch1.xml
+    depends_on: 
+      - rp1
+      - rp2
+      - rp3
+
+  ch2:
+    image: clickhouse/clickhouse-server
+    container_name: ch2
+    volumes: 
+      - ./cluster.xml:/etc/clickhouse-server/config.d/cluster.xml
+      - ./keeper.xml:/etc/clickhouse-server/config.d/keeper.xml
+      - ./profile.xml:/etc/clickhouse-server/users.d/profile.xml
+      - ./ch2.xml:/etc/clickhouse-server/config.d/ch2.xml
+    depends_on:
+      - ch1
+
+  ch3:
+    image: clickhouse/clickhouse-server
+    container_name: ch3
+    volumes: 
+      - ./cluster.xml:/etc/clickhouse-server/config.d/cluster.xml
+      - ./keeper.xml:/etc/clickhouse-server/config.d/keeper.xml
+      - ./profile.xml:/etc/clickhouse-server/users.d/profile.xml
+      - ./ch3.xml:/etc/clickhouse-server/config.d/ch3.xml
+    depends_on:
+      - ch1

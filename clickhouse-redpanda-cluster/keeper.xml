@@ -1,0 +1,35 @@
+<clickhouse>
+    <keeper_server>
+        <tcp_port>9181</tcp_port>
+        <log_storage_path>/var/lib/clickhouse/coordination/log</log_storage_path>
+        <snapshot_storage_path>/var/lib/clickhouse/coordination/snapshots</snapshot_storage_path>
+
+        <coordination_settings>
+            <raft_logs_level>trace</raft_logs_level>
+        </coordination_settings>
+
+        <raft_configuration>
+            <server>
+                <id>1</id>
+                <hostname>ch1</hostname>
+                <port>9234</port>
+                <can_become_leader>true</can_become_leader>
+            </server>
+            <server>
+                <id>2</id>
+                <hostname>ch2</hostname>
+                <port>9234</port>
+                <can_become_leader>true</can_become_leader>
+                <start_as_follower>true</start_as_follower>
+            </server>
+            <server>
+                <id>3</id>
+                <hostname>ch3</hostname>
+                <port>9234</port>
+                <can_become_leader>true</can_become_leader>
+                <start_as_follower>true</start_as_follower>
+            </server>
+        </raft_configuration>
+
+    </keeper_server>
+</clickhouse>
